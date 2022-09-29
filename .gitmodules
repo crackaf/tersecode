@@ -1,3 +1,6 @@
 [submodule "backend"]
 	path = backend
 	url = https://github.com/crackaf/tersecode-be.git
+[submodule "frontend"]
+	path = frontend
+	url = https://github.com/crackaf/tersecode-fe.git
