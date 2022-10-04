@@ -1,14 +1,13 @@
 services:
   backend:
     image: crackaf/tersecode_backend
+    ports:
+      - "8000:8000"
   celery:
-    image: crackaf/tersecode_celery
+    image: crackaf/tersecode_backend
     depends_on:
       - backend
   frontend:
     image: crackaf/tersecode_frontend
     ports:
       - "80:3000"
-    depends_on:
-      - backend
-      - celery

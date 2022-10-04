@@ -37,7 +37,7 @@ services:
     build: 
       context: backend
       dockerfile: Dockerfile
-    image: crackaf/tersecode_celery
+    image: crackaf/tersecode_backend
     working_dir: /backend
     command: >
        bash -c "find . && pwd && 
