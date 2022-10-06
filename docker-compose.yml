@@ -1,0 +1,106 @@
+version: "3.9"
+
+services:
+  # backend images
+  docker:
+    image: docker:dind
+    privileged: true
+    command: >
+      bash -c "docker pull crackaf/tersecode:epicbox"
+    volumes:
+      - dockersocket:/var/run/
+      - dockerimages:/var/lib/docker
+  epicbox:
+    build:
+      context: ./docker/epicbox
+      dockerfile: Dockerfile
+    image: crackaf/tersecode:epicbox
+
+  # main images
+  nginx:
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    image: crackaf/tersecode:nginx
+    ports:
+      - 80:80
+      - 443:443
+    depends_on:
+      - backend
+      - frontend
+    volumes:
+      - staticvol:/backend/staticfiles
+      - mediavol:/backend/mediafiles
+    networks:
+      - nginxnet
+  redis:
+    image: "redis:alpine"
+    hostname: redis
+    volumes:
+      - redisvol:/data
+    networks:
+      - backnet
+  db:
+    image: postgres
+    volumes:
+      - dbvol:/var/lib/postgresql/data
+    env_file:
+      - ./.env
+    networks:
+      - backnet
+  celery:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    image: crackaf/tersecode:backend
+    volumes:
+      - mediavol:/backend/mediafiles
+      - dockersocket:/var/run/
+      - dockerimages:/var/lib/docker
+    command: >
+      bash -c "celery -A tersecode worker -l info"
+    env_file:
+      - ./.env
+    depends_on:
+      - backend
+      - docker
+    networks:
+      - backnet
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    image: crackaf/tersecode:backend
+    volumes:
+      - staticvol:/backend/staticfiles
+      - mediavol:/backend/mediafiles
+    command: >
+      sh -c "gunicorn tersecode.wsgi:application --bind 0.0.0.0:8000"
+    env_file:
+      - ./.env
+    depends_on:
+      - db
+      - redis
+    networks:
+      - backnet
+      - nginxnet
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        - REACT_APP_SERVER_URL=http://127.0.0.1
+    image: crackaf/tersecode:frontend
+
+volumes:
+  dbvol:
+  redisvol:
+  staticvol:
+  mediavol:
+  dockersocket:
+  dockerimages:
+
+
+networks:
+  backnet:
+  nginxnet:
