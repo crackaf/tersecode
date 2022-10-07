@@ -17,3 +17,6 @@ RUN apt-get update && apt-get install -y \
   npm install -g yarn && \
   npm cache clean --force && \
   rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /root/.cache 
+WORKDIR /app
+RUN npm install \
+  synchro-prompt

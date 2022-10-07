@@ -5,8 +5,6 @@ services:
   docker:
     image: docker:dind
     privileged: true
-    command: >
-      bash -c "docker pull crackaf/tersecode:epicbox"
     volumes:
       - dockersocket:/var/run/
       - dockerimages:/var/lib/docker
@@ -89,7 +87,7 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
       args:
-        - REACT_APP_SERVER_URL=http://127.0.0.1
+        - REACT_APP_SERVER_URL=http://35.78.168.75
     image: crackaf/tersecode:frontend
 
 volumes:
